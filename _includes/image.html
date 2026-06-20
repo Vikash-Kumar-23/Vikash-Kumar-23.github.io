@@ -1,0 +1,6 @@
+<figure class="image-wrapper">
+  <img src="{{ include.url | relative_url }}" alt="{{ include.alt }}" style="max-width: {{ include.width | default: '100%' }};">
+  {% if include.caption %}
+    <figcaption>{{ include.caption }}</figcaption>
+  {% endif %}
+</figure>

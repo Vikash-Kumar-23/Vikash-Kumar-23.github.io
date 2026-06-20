@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title | default: site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
+  <script>
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ '/' | relative_url }}" class="nav-brand" aria-label="Home">
+        <img src="{{ '/assets/images/matplotlib.webp' | relative_url }}" alt="Matplotlib Logo" style="height: 35px; width: auto; display: block; object-fit: contain;">
+      </a>
+      <div class="nav-links">
+        <a href="{{ '/' | relative_url }}">Home</a>
+        <a href="{{ '/' | relative_url }}#updates">Blog Posts</a>
+        <a href="{{ '/' | relative_url }}#overview">Project Overview</a>
+        <a href="{{ '/' | relative_url }}#about">About</a>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" style="background:none; border:none; cursor:pointer; font-size: 1.2rem; margin-left: 15px;">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    {{ content }}
+  </main>
+
+  <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
+</body>
+</html>

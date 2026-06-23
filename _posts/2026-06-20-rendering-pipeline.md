@@ -84,3 +84,8 @@ During the investigation, a common question arose: *Why not just attach a callba
 
 To solve this, I am proposing `_pre_render_event` as a new hook that fires exactly when the geometry is finalized (after the layout engine finishes), but critically, *before* rendering starts. This gives developers a reliable, delay-free point to query and adjust the layout.
 
+---
+
+> **Update:** After further investigation and mentor feedback, this proposal was dropped. It turns out that Matplotlib already provides built-in, native ways to solve these geometry tracking problems (such as `InsetAxes.set_title()`, `ax.annotate()`, or lazy evaluation inside a custom `Artist.draw()` method) without needing to modify the core rendering loop with a new event hook.
+
+

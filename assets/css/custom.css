@@ -98,6 +98,31 @@ section h2 { font-size: 2rem; border-bottom: 2px solid var(--border-color); padd
 .post-content code { background: var(--code-bg); padding: 0.2em 0.4em; border-radius: 3px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 0.9em; color: var(--text-color); transition: background-color 0.3s ease, color 0.3s ease; }
 .post-content pre code { padding: 0; background: transparent; color: inherit; }
 .post-content ul, .post-content ol { margin-bottom: 1.2em; padding-left: 20px; }
+/* Tables */
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5em;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+.post-content th, .post-content td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+.post-content th {
+  background-color: var(--secondary-bg);
+  font-weight: 600;
+}
+.post-content tr:last-child td {
+  border-bottom: none;
+}
+.post-content tr:hover {
+  background-color: var(--quote-bg);
+}
 
 /* Responsive */
 @media (max-width: 768px) {

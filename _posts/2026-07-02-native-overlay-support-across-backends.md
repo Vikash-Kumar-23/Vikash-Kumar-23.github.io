@@ -30,8 +30,8 @@ categories: gsoc matplotlib
 
 ### What About Static APIs (PDF, SVG, PNG)?
 
-When exporting to static formats via `savefig()` (using backends like `pdf`, `svg`, or `Agg`), there is no concept of a "hardware compositing event loop." The image just needs to be flattened into a single document. 
+I looked into whether static backends (`pdf`, `svg`, `Agg`) could support a fast path for overlays. The answer is no: static exports represent a single, flattened document, so every static backend must inherently perform a full `Figure.draw()` to generate the output from scratch.
 
-Because we add our overlay artists directly to the `Axes` (e.g., `ax.add_artist(..., animated=True)`), Matplotlib's core actually handles this automatically! 
+However, we do not need to write any custom logic to get our `animated=True` overlay artists to appear in these static exports.
 
-When `savefig` runs, the `FigureCanvasBase` sets a special context manager (`is_saving = True`). During the rendering loop, `Axes.draw()` explicitly checks this flag (`if not canvas.is_saving(): hide_animated_artists()`). Because we are saving, the filter is bypassed, and the static APIs will naturally draw the animated overlay artists right into the final flattened image without any special code required on our end.
+Because we add overlay artists directly to the `Axes` (e.g., `ax.add_artist(..., animated=True)`), Matplotlib's core handles it automatically. When `savefig` runs, `FigureCanvasBase` sets a context manager (`is_saving = True`). Inside the rendering loop, `Axes.draw()` explicitly checks this flag (`if not canvas.is_saving(): hide_animated_artists()`). Because we are saving, the filter is bypassed, naturally flattening the animated overlay artists into the final image without any extra code on our end.

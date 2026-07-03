@@ -27,3 +27,11 @@ categories: gsoc matplotlib
 *   **TkAgg** uses a single **`tk.PhotoImage`** on a Canvas. 
     * *What it does:* The backend pushes the Agg RGBA buffer directly into a single `tk.PhotoImage`. Tk actually *does* support native pixel-wise alpha compositing at the C-level (`TK_PHOTO_COMPOSITE_OVERLAY`), and Matplotlib already uses this for partial blits!
     * *How I am thinking of using it for the overlay project:* Tkinter's high-level widget model is tricky here. There is no easy way to keep two independently-alpha-composited raster layers as separate live widgets (e.g., stacking a transparent canvas on top of another). Because of this, I'm still figuring out how to apply the dual-buffer concept here.
+
+### What About Static APIs (PDF, SVG, PNG)?
+
+When exporting to static formats via `savefig()` (using backends like `pdf`, `svg`, or `Agg`), there is no concept of a "hardware compositing event loop." The image just needs to be flattened into a single document. 
+
+Because we add our overlay artists directly to the `Axes` (e.g., `ax.add_artist(..., animated=True)`), Matplotlib's core actually handles this automatically! 
+
+When `savefig` runs, the `FigureCanvasBase` sets a special context manager (`is_saving = True`). During the rendering loop, `Axes.draw()` explicitly checks this flag (`if not canvas.is_saving(): hide_animated_artists()`). Because we are saving, the filter is bypassed, and the static APIs will naturally draw the animated overlay artists right into the final flattened image without any special code required on our end.

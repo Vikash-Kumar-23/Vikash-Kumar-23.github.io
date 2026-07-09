@@ -25,7 +25,7 @@ When a user does something like `line.set_color("red")`, here is what happens st
 1. The line marks itself `stale = True`.
 2. It then notifies its parent `Axes` through a `stale_callback`, making the axes stale too.
 3. The `Axes` does the same thing up to the `Figure`.
-4. If running in a Python terminal, the `Figure` also has a special callback (`_auto_draw_if_interactive`) that schedules the redraw automatically. In Jupyter or other GUI backends, those environments handle that part themselves.
+4. The `Figure` also has a callback (`_auto_draw_if_interactive`) that schedules the redraw automatically.
 5. Eventually the draw event fires, `Figure.draw()` runs, everything gets rendered, and `stale` is reset to `False`.
 
 One important exception: if an artist is marked `animated=True`, this whole chain stops. Animated artists are meant to be updated manually (for things like blitting), so they intentionally block the stale flag from propagating upwards.

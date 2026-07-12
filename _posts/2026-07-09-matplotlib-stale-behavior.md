@@ -20,38 +20,45 @@ The `stale` flag handles this automatically. It lets Matplotlib group a bunch of
 
 ### How does stale interact with requesting draws/updating figures?
 
-When a user does something like `line.set_color("red")`, here is what happens step by step:
+<div style="margin: 2rem 0 0.5rem 0; width: 100%; max-width: 100%; overflow-x: auto; text-align: center;">
+  <a href="/assets/images/updating%20figures.drawio.png" target="_blank" style="display: inline-block;">
+    <img src="/assets/images/updating%20figures.drawio.png" alt="Stale updating figures flowchart" style="width: auto; max-height: 75vh; margin: 0;">
+  </a>
+</div>
+<p style="text-align: center; font-size: 0.85em; color: #888; margin-bottom: 2rem;"><em>Click to open in full resolution</em></p>
 
-1. The line marks itself `stale = True`.
-2. It then notifies its parent `Axes` through a `stale_callback`, making the axes stale too.
-3. The `Axes` does the same thing up to the `Figure`.
-4. The `Figure` also has a callback (`_auto_draw_if_interactive`) that schedules the redraw automatically.
-5. Eventually the draw event fires, `Figure.draw()` runs, everything gets rendered, and `stale` is reset to `False`.
+Here is what happens step-by-step when you change something, like the color of a line:
 
-One important exception: if an artist is marked `animated=True`, this whole chain stops. Animated artists are meant to be updated manually (for things like blitting), so they intentionally block the stale flag from propagating upwards.
+1. The line realizes it has changed and marks itself as "stale" (needs updating).
+2. It tells its parent, the Axes (the plot area), which also marks itself as stale.
+3. The Axes tells the Figure (the whole window), which also marks itself as stale.
+4. Now that the Figure knows something changed, it schedules a screen update.
+5. Finally, Matplotlib redraws the screen to show your changes and resets all the "stale" flags back to `False`.
 
 ### How does a figure get and use the information?
 
 When any child is added to a `Figure` — whether it's an `Axes`, a `SubFigure`, or just an artist — a callback called `_stale_figure_callback` gets attached to it. So when that child becomes stale, the figure immediately knows.
 
-When it actually draws, `Figure.draw(renderer)` runs the full render. One small but important detail: at the very end there is a `finally:` block that sets `self.stale = False`. This makes sure the flag gets cleared even if something crashes during rendering.
+The Figure uses the information to do these things:
+* It marks itself as "stale" so it knows something inside it has changed.
+* It sends a message to the main window (the Canvas), asking it to redraw the screen.
+* When the screen finally redraws, the Figure (and every single item inside it) wipes its "stale" flag clean so the system is fresh and ready for the next change.
 
 ### How do Axes get and use the information?
 
 Same idea — when the user adds an artist to an `Axes`, a `_stale_axes_callback` gets attached so the axes knows when a child changes.
 
-There is a clever trick inside `Axes.draw(renderer)`: it sets `self._stale = True` directly on the private attribute instead of going through the property setter. This is intentional — it skips the callback. Why? Because during a draw, the axes might recalculate tick positions which would mark itself stale again, which would trigger another draw, and so on forever. Setting the raw attribute avoids that loop.
+
+The Axes uses the information to do these things:
+* It updates its own state by setting its internal flag to `self._stale = True`.
+* It triggers its own callback (`_stale_figure_callback`) to pass the message up the chain, notifying its parent `Figure` that a redraw is needed.
 
 ### How do other Artists get and use the information?
 
-Almost every method that changes how an artist looks ends with `self.stale = True`. For example:
-- `Text.set_fontsize()`
-- `Line2D.set_data()`
-- `Spine.set_bounds()`
+Artists (like a Line2D or Text) do not actually receive stale information from anywhere because they are the bottom of the chain. Instead, they are the source of the information! They generate the stale signal whenever a user alters their data or appearance.
 
-On the other side, the base `Artist.draw(renderer)` is responsible for setting `self.stale = False` once drawing is done. It also skips drawing entirely if the artist is invisible.
-
-One more thing: when a user calls `artist.remove()`, the `stale_callback` is set to `None`. This makes sense — a removed artist should not keep triggering redraws on a figure it is no longer part of.
+It updates its own internal state by setting its flag to self._stale = True.
+It triggers its own stale_callback, which sends the stale signal up the chain to notify its parent (usually an Axes) that a redraw is needed.
 
 ### What role do callbacks use, when are they used?
 
@@ -62,8 +69,6 @@ Callbacks are what allow the stale flag to travel up the hierarchy from a single
 3. `_auto_draw_if_interactive` — goes from the `Figure` to the canvas to call `draw_idle()`.
 
 These callbacks only fire when something becomes `stale = True`. Setting it back to `False` does not trigger anything.
-
-They are set up as soon as a user adds things to the figure, and they get removed when an artist is pickled — because serializing a callback that holds a reference to a whole figure would cause all sorts of problems.
 
 ---
 

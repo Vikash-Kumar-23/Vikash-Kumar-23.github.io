@@ -51,7 +51,7 @@ The Qt backend overrides `draw_overlay()` to do actual drawing instead of just c
 
 ### 2. Finding Overlay Artists
 
-This finds all artists where `in_overlay=True`, regardless of where they are in the figure and sort them by `zorder` so they layer correctly.
+The figure hierarchy is searched recursively to find all artists marked as overlay. This includes artists inside axes, subfigures, and any nested containers. All found artists are collected into a list and sorted by their z-order property to ensure correct visual layering when drawn.
 
 ### 3. Creating the Overlay Buffer
 

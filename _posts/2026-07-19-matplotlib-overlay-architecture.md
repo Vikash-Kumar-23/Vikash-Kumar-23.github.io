@@ -35,7 +35,7 @@ An OverlayManager class was added to the Canvas. This provides an update() metho
 
 **Why do we need update() if the stale setter already calls draw_overlay()?**
 
-update() method as a convenience wrapper around canvas.draw_overlay(). However, since the stale setter already calls draw_overlay() automatically, we did not really need it unless user want to update the overlay even if artist is not stale - update() method is currently redundant
+update() calls canvas.draw_overlay(). However, since the stale setter already calls draw_overlay() automatically, we did not really need it unless user want to update the overlay even if artist is not stale - update() method is currently redundant
 
 <img src="/assets/images/fallback.png" alt="Fallback Architecture Flow" width="500">
 

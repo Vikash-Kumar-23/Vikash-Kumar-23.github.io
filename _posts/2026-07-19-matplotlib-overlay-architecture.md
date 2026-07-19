@@ -7,31 +7,31 @@ categories: matplotlib architecture internals
 
 ## The Fallback Architecture
 
-### 1. The in_overlay Property
+### 1. in_overlay Property
 
-I added an `in_overlay` property to the base Artist class. Users can now simply do:
+`in_overlay` property to the base Artist class. Users can now simply do:
 
 ```python
 line.set_in_overlay(True)
 ```
 
-This is similar to how `animated=True` works. No complex setup needed.
+This is similar to how `animated=True` works.
 
 ### 2. Blocking Stale Propagation
 
-Matplotlib uses a `stale` flag to track what needs redrawing. Normally, changing a line makes it stale, which propagates to Axes, then to Figure, triggering a full redraw.
+Matplotlib uses a stale flag to track what needs redrawing. Normally, changing a line makes it stale, which propagates to Axes, then to Figure, triggering a full redraw.
 
-I modified the stale setter to check: if this artist is in the overlay AND the canvas supports native overlays, mark it dirty but don't tell the Figure. This stops the expensive full redraw chain.
+The stale setter was modified to check: if this artist is in the overlay AND the canvas supports native overlays, mark it dirty but don't tell the Figure. Instead, call draw_overlay() directly. This stops the expensive full redraw chain.
 
 ### 3. Filtering Overlay Artists
 
-When the canvas draws itself normally, we don't want overlay artists in the background. I added a filter that skips any artist where `in_overlay=True` - but only when the backend supports native overlays (`supports_overlay=True`).
+When the canvas draws itself normally, overlay artists shouldn't be in the background. A filter was added that skips any artist where in_overlay=True - but only when the backend supports native overlays (supports_overlay=True).
 
-For backends where `supports_overlay=False`, overlay artists are not filtered. They behave like normal artists and go through standard stale propagation.
+For backends where supports_overlay=False, overlay artists are not filtered. They behave like normal artists and go through standard stale propagation.
 
 ### 4. OverlayManager
 
-I added an OverlayManager class to the Canvas. This provides an `update()` method that triggers `canvas.draw_overlay()`.
+An OverlayManager class was added to the Canvas. This provides an update() method that triggers canvas.draw_overlay().
 
 **Why do we need update() if the stale setter already calls draw_overlay()?**
 

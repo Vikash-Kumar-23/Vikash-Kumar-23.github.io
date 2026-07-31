@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Set initial icon based on current theme
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-  themeToggle.textContent = currentTheme === 'dark' ? '☀' : '🌙';
+  themeToggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
 
   themeToggle.addEventListener('click', () => {
     let theme = document.documentElement.getAttribute('data-theme');
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
       themeToggle.textContent = '🌙';
     } else {
       theme = 'dark';
-      themeToggle.textContent = '☀';
+      themeToggle.textContent = '☀️';
     }
     
     // Apply theme

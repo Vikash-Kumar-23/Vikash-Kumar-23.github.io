@@ -63,7 +63,27 @@ a:hover { color: var(--hover-color); text-decoration: underline; }
 .nav-brand:hover { text-decoration: none; }
 .nav-links a { margin-left: 20px; font-weight: 500; color: var(--text-color); transition: color 0.3s ease; }
 .nav-links a:hover { color: var(--primary-color); text-decoration: none; }
-.theme-toggle:focus { outline: 2px solid var(--primary-color); border-radius: 4px; }
+.theme-toggle {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  color: #ffcc00;
+  cursor: pointer;
+  font-size: 1.25rem;
+  margin-left: 15px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+.theme-toggle:hover {
+  background: var(--border-color);
+  border-color: var(--primary-color);
+  transform: scale(1.08);
+}
+.theme-toggle:focus { outline: 2px solid var(--primary-color); }
 
 /* Buttons */
 .btn { display: inline-block; padding: 10px 20px; background: var(--primary-color); color: var(--btn-text); border-radius: 5px; font-weight: 600; text-align: center; margin-right: 10px; margin-bottom: 10px; transition: background 0.2s, color 0.2s; }

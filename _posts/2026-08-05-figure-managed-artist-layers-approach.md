@@ -204,4 +204,3 @@ draw() draws everything.
 draw_layer() draws one layer.
 ```
 
-By keeping the initial scope small and focused on core layer semantics, the change remains clean, verified, and ready for future backend performance optimizations.

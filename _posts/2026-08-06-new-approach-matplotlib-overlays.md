@@ -33,7 +33,7 @@ Because the overlay is always drawn second, your cursor will never be accidental
 ## Next Steps in the Implementation
 
 ### 1. Layer Management at the Axes Level
-Since most widgets (like cursors and selectors) are added to subplots (`Axes`) rather than the main `Figure`, layer management must be brought down to the `Axes` level.
+
 * Initialize `_artists_base_layer` and `_artists_overlay_layer` inside `Axes`.
 * Update `Axes.add_artist()` to support routing artists to the overlay list.
 * Split `Axes.draw()` into separate `_draw_base_layer()` and `_draw_overlay_layer()` passes.

@@ -62,6 +62,7 @@ def no_layer_setup(plot_data):
     ax.scatter(x, y, alpha=0.5, color='blue')
     cursor = Cursor(ax, color='red', linewidth=1)
 
+    plt.show(block=False)
     fig.canvas.draw()
     fig.canvas.flush_events()
 
@@ -83,6 +84,7 @@ def layers_setup(plot_data):
     fig.add_artist(cursor.lineh, layer="overlay")
     fig.add_artist(cursor.linev, layer="overlay")
 
+    plt.show(block=False)
     fig.canvas.draw()
     fig.canvas.flush_events()
 
@@ -112,7 +114,6 @@ def test_layers(benchmark, layers_setup):
 
 ![Benchmark Results - Dataset1]({{ '/assets/images/image4.png' | relative_url }})
 
-![Benchmark Results - Dataset2]({{ '/assets/images/image5.png' | relative_url }})
 
 Key takeaways from the benchmark results:
 * In the layer approach, there is not much difference between the small and large rendering times.
@@ -144,9 +145,8 @@ def n_points(request):
 
 @pytest.fixture
 def plot_data(n_points):
-    rng = np.random.default_rng(0)
-    x = rng.normal(5, 2, n_points)
-    y = rng.normal(5, 2, n_points)
+    x = np.random.normal(5, 2, n_points)
+    y = np.random.normal(5, 2, n_points)
     return x, y
 
 
@@ -159,6 +159,7 @@ def no_layer_setup(plot_data):
     title = Text(0.5, 0.95, "Resize benchmark", ha="center", transform=fig.transFigure)
     fig.add_artist(title)
 
+    plt.show(block=False)
     fig.canvas.draw()
     fig.canvas.flush_events()
 
@@ -177,6 +178,7 @@ def layers_setup(plot_data):
     title = Text(0.5, 0.95, "Resize benchmark", ha="center", transform=fig.transFigure)
     fig.add_artist(title, layer="overlay")
 
+    plt.show(block=False)
     fig.canvas.draw()
     fig.canvas.flush_events()
 

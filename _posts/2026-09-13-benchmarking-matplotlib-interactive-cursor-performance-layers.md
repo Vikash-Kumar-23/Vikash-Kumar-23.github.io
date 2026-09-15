@@ -25,8 +25,6 @@ from matplotlib.backend_bases import MouseEvent
 from matplotlib.widgets import Cursor
 
 
-# DATA GENERATION
-
 @pytest.fixture(params=[
     10, 
     100000
@@ -40,23 +38,22 @@ def plot_data(n_points):
     y = np.random.normal(5, 2, n_points)
     return x, y
 
-# CURSOR MOVEMENT LOGIC
 def simulate_single_mouse_move(fig, point_cycler):
-    """Core function to be benchmarked: moves mouse to next point in the cycle."""
+    """Simulate a mouse move event"""
     x, y = next(point_cycler)
     event = MouseEvent('motion_notify_event', fig.canvas, x, y)
     fig.canvas.callbacks.process('motion_notify_event', event)
     fig.canvas.flush_events()
 
 def get_cycler(ax):
-    """Cycle the cursor position through a handful of points to ensure real movement."""
+    """Return a cycle of mouse positions within the Axes"""
     bbox = ax.bbox
-    POINTS = [
-        (bbox.x0 + 10, bbox.y0 + 10),                                        # Bottom-left
-        (bbox.x0 * 0.5 + bbox.x1 * 0.5, bbox.y0 * 0.5 + bbox.y1 * 0.5),   # Center
-        (bbox.x1 - 10, bbox.y1 - 10)                                         # Top-right
+    points = [
+        (bbox.x0 + 10, bbox.y0 + 10),
+        (bbox.x0 * 0.5 + bbox.x1 * 0.5,bbox.y0 * 0.5 + bbox.y1 * 0.5),
+        (bbox.x1 - 10, bbox.y1 - 10)
     ]
-    return itertools.cycle(POINTS)
+    return itertools.cycle(points)
 
 @pytest.fixture
 def no_layer_setup(plot_data):
@@ -80,7 +77,7 @@ def layers_setup(plot_data):
 
     cursor = Cursor(ax, color='red', linewidth=1)
 
-    # Hack the normal cursor to put its lines into the new overlay layer!
+    # Move cursor lines to the overlay layer
     cursor.lineh.remove()
     cursor.linev.remove()
     fig.add_artist(cursor.lineh, layer="overlay")
@@ -113,10 +110,109 @@ def test_layers(benchmark, layers_setup):
 
 ## 2. Conclusion
 
-![Benchmark Results]({{ '/assets/images/image1.png' | relative_url }})
+![Benchmark Results - Dataset1]({{ '/assets/images/image4.png' | relative_url }})
 
+![Benchmark Results - Dataset2]({{ '/assets/images/image5.png' | relative_url }})
 
 Key takeaways from the benchmark results:
-* In the layer approach, there is not much difference between the small and large rendering times (it only increases from 2.93 ms to 3.03 ms).
-* In the no-layer approach, the time jumps significantly from 32.4 ms to 392.96 ms.
-* For rendering the cursor in a heavy plot, the time difference between the no-layer and layer approaches is 392.96 ms - 3.03 ms.
+* In the layer approach, there is not much difference between the small and large rendering times.
+* In the no-layer approach, the time jumps significantly.
+* For rendering the cursor in a heavy plot, the time difference between the no-layer and layer approaches is very large.
+
+
+---
+
+## 3. Resize Benchmark Source Code
+
+Here is the benchmark script used to measure figure resize performance:
+
+```python
+import matplotlib
+matplotlib.use("QtAgg")
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pytest
+from matplotlib.text import Text
+from matplotlib.lines import Line2D
+
+
+@pytest.fixture(params=[10, 100000], ids=["small", "large"])
+def n_points(request):
+    return request.param
+
+
+@pytest.fixture
+def plot_data(n_points):
+    rng = np.random.default_rng(0)
+    x = rng.normal(5, 2, n_points)
+    y = rng.normal(5, 2, n_points)
+    return x, y
+
+
+@pytest.fixture
+def no_layer_setup(plot_data):
+    x, y = plot_data
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.scatter(x, y, alpha=0.5, color="blue")
+    title = Text(0.5, 0.95, "Resize benchmark", ha="center", transform=fig.transFigure)
+    fig.add_artist(title)
+
+    fig.canvas.draw()
+    fig.canvas.flush_events()
+
+    yield fig
+
+    plt.close(fig)
+
+
+@pytest.fixture
+def layers_setup(plot_data):
+    x, y = plot_data
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.scatter(x, y, alpha=0.5, color="blue")
+
+    title = Text(0.5, 0.95, "Resize benchmark", ha="center", transform=fig.transFigure)
+    fig.add_artist(title, layer="overlay")
+
+    fig.canvas.draw()
+    fig.canvas.flush_events()
+
+    yield fig
+
+    plt.close(fig)
+
+
+def resize_figure(fig):
+    width, height = fig.get_size_inches()
+
+    if width == 8:
+        fig.set_size_inches(10, 8)
+    else:
+        fig.set_size_inches(8, 6)
+
+    fig.canvas.draw()
+    fig.canvas.flush_events()
+
+
+def test_resize_no_layer(benchmark, no_layer_setup):
+    fig = no_layer_setup
+    benchmark.group = "resize_perf"
+    benchmark(resize_figure, fig)
+
+
+def test_resize_layers(benchmark, layers_setup):
+    fig = layers_setup
+    benchmark.group = "resize_perf"
+    benchmark(resize_figure, fig)
+```
+
+---
+
+## 4. Conclusion
+
+![Resize Benchmark Results]({{ '/assets/images/image3.png' | relative_url }})
+
+![Resize Benchmark Results]({{ '/assets/images/image6.png' | relative_url }})

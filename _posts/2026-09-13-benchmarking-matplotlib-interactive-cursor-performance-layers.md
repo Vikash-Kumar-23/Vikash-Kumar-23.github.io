@@ -60,7 +60,7 @@ def no_layer_setup(plot_data):
     x, y = plot_data
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.scatter(x, y, alpha=0.5, color='blue')
-    cursor = Cursor(ax, color='red', linewidth=1)
+    cursor = Cursor(ax, color='red')
 
     plt.show(block=False)
     fig.canvas.draw()
@@ -76,7 +76,7 @@ def layers_setup(plot_data):
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.scatter(x, y, alpha=0.5, color='blue')
 
-    cursor = Cursor(ax, color='red', linewidth=1)
+    cursor = Cursor(ax, color='red')
 
     # Move cursor lines to the overlay layer
     cursor.lineh.remove()
@@ -215,6 +215,21 @@ def test_resize_layers(benchmark, layers_setup):
 
 ## 4. Conclusion
 
-![Resize Benchmark Results]({{ '/assets/images/image3.png' | relative_url }})
+![Resize Benchmark Results]({{ '/assets/images/image8.png' | relative_url }})
 
-![Resize Benchmark Results]({{ '/assets/images/image6.png' | relative_url }})
+
+Key takeaways from the benchmark results:
+* In most cases, the non-layer implementation is faster than the layer implementation during resize operations, though the difference in mean execution time is minimal.
+* For small batch sizes (10 points), the non-layer implementation is faster by 19.73 ms.
+* For large batch sizes (100,000 points), the non-layer implementation is faster by 47.4374 ms.
+* After running the same test case 50 times, the non-layer implementation proved to be faster in 40 instances.
+* The exceptions are as follows:
+  * In 10 instances, the layer implementation with a large batch size was faster (i.e., had a lower mean time).
+
+![Resize Benchmark Results]({{ '/assets/images/image9.png' | relative_url }})
+
+  * In 1 out of those 10 instances, the minimum execution time for the layer implementation was faster than the non-layer implementation for small batch sizes. However, the overall mean time and OPS (Operations Per Second) were still lower or approximately the same.
+
+![Resize Benchmark Results]({{ '/assets/images/image7.png' | relative_url }})
+
+* **Conclusion:** Ultimately, the non-layer implementation is faster the majority of the time.

@@ -23,7 +23,7 @@ y = np.random.normal(5, 2, 1000000)
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.scatter(x, y, alpha=0.1, color='blue')
 
-cursor = Cursor(ax, color='red', linewidth=1)
+cursor = Cursor(ax, color='red')
 
 plt.show()
 ```
@@ -65,7 +65,7 @@ fig, ax = plt.subplots(figsize=(10, 6))
 ax.scatter(x, y, alpha=0.1, color='blue')
 
 # Create a normal cross-over cursor
-cursor = Cursor(ax, color='red', linewidth=1)
+cursor = Cursor(ax, color='red')
 
 # First, we remove them from the standard Axes
 cursor.lineh.remove()
@@ -90,3 +90,8 @@ plt.show()
   <source src="{{ '/assets/video/Figure_2.mp4?v=4' | relative_url }}" type="video/mp4">
   Your browser does not support the video tag.
 </video>
+
+
+## Conclusion
+
+The layered implementation achieves a higher frame rate (FPS) than the non-layered one. This is because the layered approach only redraws the cursor during movement, whereas the non-layered approach must redraw all 1,000,000 scatter points every time the user moves the cursor.

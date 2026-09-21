@@ -95,3 +95,32 @@ plt.show()
 ## Conclusion
 
 The layered implementation achieves a higher frame rate (FPS) than the non-layered one. This is because the layered approach only redraws the cursor during movement, whereas the non-layered approach must redraw all 1,000,000 scatter points every time the user moves the cursor.
+
+
+## 3. Layer Test Code with blitting = True
+
+Setting `useblit=True` improves performance by caching the static background (the scatter points) as an image. When the cursor moves, Matplotlib simply restores this background and redraws only the cursor lines, avoiding the heavy cost of re-rendering all 1,000,000 data points on every movement.
+
+```python
+import matplotlib
+matplotlib.use('QtAgg')
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.widgets import Cursor
+
+x = np.random.normal(5, 2, 1000000)
+y = np.random.normal(5, 2, 1000000)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.scatter(x, y, alpha=0.1, color='blue')
+
+cursor = Cursor(ax, color='red', useblit=True)
+
+plt.show()
+```
+
+### Screen recording of Non-Layer Test Code with blitting = True:
+<video controls autoplay muted loop playsinline preload="metadata" width="100%">
+  <source src="{{ '/assets/video/Figure_3.mp4?v=4' | relative_url }}" type="video/mp4">
+  Your browser does not support the video tag.
+</video>

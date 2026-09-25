@@ -7,7 +7,7 @@ categories: matplotlib benchmarking performance
 
 # Benchmarking Matplotlib Interactive Cursor Performance
 
-When plotting large amounts of data in Matplotlib (such as 100,000 scatter points), interactive features like the `Cursor` widget can become incredibly slow. If the entire figure has to be redrawn every time the mouse moves, the application drops to just a few frames per second.
+Plotting large datasets in Matplotlib, such as 100,000 scatter points, often causes interactive widgets like `Cursor` to lag. Because the whole figure is redrawn on every mouse movement, the frame rate drops significantly.
 
 Matplotlib has solved this using **blitting**—saving the heavy background plot to a pixel buffer, and rapidly copying those pixels back to the screen before drawing the lightweight cursor lines on top.
 
@@ -19,7 +19,7 @@ In this post, we benchmark these approaches head-to-head.
 
 Our goal is to quantitatively measure the performance difference between:
 1. **No Layers / No Blitting**: Redrawing everything from scratch on every mouse move.
-2. **Classic Blitting**: Using the traditional `useblit=True` mechanism.
+2. **Blitting**: Using the `useblit=True` mechanism.
 3. **Layered Architecture**: Manually moving the cursor artists into a separate `"overlay"` layer so the backend composites it using multi-pass caching.
 
 We wrote a comprehensive test using `pytest-benchmark` to simulate mouse movements over a plot with 100,000 points.
@@ -149,7 +149,7 @@ By separating the tests into distinct fixtures, we can see exactly what happens 
 
 * **test_no_layer**: Redraws the entire figure tree. As the number of scatter points increases, this slows down linearly.
 * **test_classic_blitting**: uses blitting.
-* **test_layers**: To fairly compare the performance of the new layer system with traditional blitting, we are running this code on a branch where the internal `useblit` behavior of the `Cursor` widget has NOT been modified. This ensures the blitting implementation still works exactly as it always has. Therefore, to test the layered architecture, we create a standard cursor and manually extract its artists into the overlay layer using:
+* **test_layers**: To fairly compare the performance of the new layer system VS blitting, we are running this code on a branch where the internal `useblit` behavior of the `Cursor` widget has NOT been modified. This ensures the blitting implementation still works exactly as it always has. Therefore, to test the layered architecture, we create a standard cursor and manually extract its artists into the overlay layer using:
 
   ```python
   cursor = Cursor(ax, color='red')

@@ -112,7 +112,8 @@ leaving the complex base plot cached and completely untouched in memory.
 ### Related Posts
 
 * [Layer vs Non-Layer Test Suite and Verification Audit](https://vikash-kumar-23.github.io/matplotlib/testing/architecture/gsoc/2026/09/13/layer-vs-non-layer-test-suite-and-verification-audit.html)
-* [Benchmarking Matplotlib Interactive Cursor Performance Layers](https://vikash-kumar-23.github.io/matplotlib/benchmarking/performance/gsoc/2026/09/13/benchmarking-matplotlib-interactive-cursor-performance-layers.html)
+* [layers vs non-layer Interactive Cursor Benchmark and Resize Benchmark](https://vikash-kumar-23.github.io/matplotlib/benchmarking/performance/gsoc/2026/09/13/benchmarking-matplotlib-interactive-cursor-performance-layers.html)
+* [Comparison between Layer vs Blitting vs Normal Draw](https://vikash-kumar-23.github.io/matplotlib/benchmarking/performance/2026/09/25/benchmarking-cursor-blitting-layers.html)
 
 ## What is done till now
 
@@ -212,7 +213,7 @@ Further detailed in [Matplotlib Artist-level Overlay Architecture](https://vikas
 
 This alternative was rejected because it does not provide proper layer separation.
 The backend canvas classes have to look up individual artist attributes through
-`findobj()` traversal of the entire scene graph.
+`findobj()` traversal of the entire artist tree.
 
 Figure-managed layers ensures layer isolation. Figure is responsible for
 maintaining the layer registry and staleness status, making it possible for
